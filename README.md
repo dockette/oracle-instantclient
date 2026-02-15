@@ -53,3 +53,7 @@ RUN apt-get clean -y && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /var/lib/log/* /tmp/* /var/tmp/*
 ```
+
+## Maintenance
+
+See [how to contribute](https://github.com/dockette/.github/blob/master/CONTRIBUTING.md) to this package.
