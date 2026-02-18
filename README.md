@@ -55,7 +55,6 @@ RUN apt-get clean -y && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /var/lib/log/* /tmp/* /var/tmp/*
 ```
-
 ### Example for PHP 8.5
 
 ```Dockerfile
