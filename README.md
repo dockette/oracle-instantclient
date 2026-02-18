@@ -14,6 +14,8 @@ Take a look at [installation guide for Ubuntu](https://help.ubuntu.com/community
 
 ## Usage
 
+### Legacy example (PHP 7.2)
+
 Here is example Dockerfile, where you can find PHP 7.2 with OCI8 extension and Oracle instantclient v12.2.0.1.0.
 
 ```Dockerfile
@@ -36,8 +38,8 @@ RUN apt-get update && \
         php7.2-dev && \
    rm /etc/nginx/sites.d/default
 
-RUN wget https://github.com/pwnlabs/oracle-instantclient/raw/master/instantclient-basic-linux.x64-12.2.0.1.0.zip -O /tmp/instantclient-basic-linux.x64-12.2.0.1.0.zip && \
-    wget https://github.com/pwnlabs/oracle-instantclient/raw/master/instantclient-sdk-linux.x64-12.2.0.1.0.zip -O /tmp/instantclient-sdk-linux.x64-12.2.0.1.0.zip && \
+RUN wget https://github.com/dockette/oracle-instantclient/raw/master/instantclient-basic-linux.x64-12.2.0.1.0.zip -O /tmp/instantclient-basic-linux.x64-12.2.0.1.0.zip && \
+    wget https://github.com/dockette/oracle-instantclient/raw/master/instantclient-sdk-linux.x64-12.2.0.1.0.zip -O /tmp/instantclient-sdk-linux.x64-12.2.0.1.0.zip && \
     unzip /tmp/instantclient-basic-linux.x64-12.2.0.1.0.zip -d /usr/local/ && \
     unzip /tmp/instantclient-sdk-linux.x64-12.2.0.1.0.zip -d /usr/local/
 
@@ -52,6 +54,44 @@ RUN apt-get clean -y && \
     apt-get remove -y wget make autoconf g++ unzip && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /var/lib/log/* /tmp/* /var/tmp/*
+```
+
+### Example for PHP 8.5
+
+```Dockerfile
+FROM debian:bookworm-slim
+
+ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/local/instantclient"
+ENV NLS_LANG="AMERICAN_AMERICA.AL32UTF8"
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        wget \
+        unzip \
+        libaio1 \
+        php8.5-cli \
+        php8.5-dev \
+        php-pear \
+        make \
+        gcc \
+        libc-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN wget https://github.com/dockette/oracle-instantclient/raw/master/instantclient-basic-linux.x64-12.2.0.1.0.zip -O /tmp/instantclient-basic-linux.x64-12.2.0.1.0.zip && \
+    wget https://github.com/dockette/oracle-instantclient/raw/master/instantclient-sdk-linux.x64-12.2.0.1.0.zip -O /tmp/instantclient-sdk-linux.x64-12.2.0.1.0.zip && \
+    unzip /tmp/instantclient-basic-linux.x64-12.2.0.1.0.zip -d /usr/local/ && \
+    unzip /tmp/instantclient-sdk-linux.x64-12.2.0.1.0.zip -d /usr/local/
+
+RUN ln -s /usr/local/instantclient_12_2 /usr/local/instantclient && \
+    ln -s /usr/local/instantclient/libclntsh.so.12.1 /usr/local/instantclient/libclntsh.so && \
+    printf 'instantclient,/usr/local/instantclient\n' | pecl install oci8 && \
+    echo "extension=oci8.so" > /etc/php/8.5/cli/conf.d/20-oci8.ini
+
+RUN apt-get purge -y wget unzip make gcc libc-dev php8.5-dev && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /tmp/* /var/tmp/*
 ```
 
 ## Maintenance
